@@ -1,5 +1,7 @@
 from typing import Type
 
+from huggingface_hub import model_info
+from huggingface_hub.utils import HfHubHTTPError
 from transformers import (
     AutoModel,
     AutoTokenizer,
@@ -36,6 +38,19 @@ class Translator:
         except (OSError, AttributeError):
             return False
         return True
+
+    def is_valid(self) -> bool:
+        """
+        Check whether the languages asked for exist at all
+        :return:
+        """
+        try:
+            model_info(self.model_name)
+            return True
+        except HfHubHTTPError as e:
+            if e.response.status_code == 404:
+                return False
+            raise  # re-raise other errors
 
 
 class TranslatorFactory:
