@@ -23,7 +23,14 @@ class TranslationOutput(TranslationInput):
     output_text: str = "Coming soon!"
 
 
-@api_router.post("/translate", response_model=TranslationOutput)
+@api_router.post(
+    "/translate",
+    response_model=TranslationOutput,
+    responses={
+        202: {"description": "Model not yet downloaded"},
+        422: {"description": "No such model exists"},
+    },
+)
 async def translate(data: TranslationInput, background_tasks: BackgroundTasks):
     translator = TranslatorFactory.translator_factory(
         data.input_language, data.output_language
