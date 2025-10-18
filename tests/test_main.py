@@ -15,12 +15,22 @@ def test_index(client):
     assert response.json() == {"message": "Hello world"}
 
 
-def test_translate(client):
-    post_data = {
-        "input_language": "en",
-        "output_language": "fr",
-        "input_text": "Hello world!",
-    }
-    response = client.post("/translate", json=post_data)
-    response_dict = response.json()
-    assert response_dict["output_text"] == "Coming soon!"
+class TestTranslate:
+    def test_translate_happy_path(self, client):
+        post_data = {
+            "input_language": "en",
+            "output_language": "fr",
+            "input_text": "Hello world!",
+        }
+        response = client.post("/translate", json=post_data)
+        response_dict = response.json()
+        assert response_dict["output_text"] == "Coming soon!"
+
+    def test_translate_bad_language(self, client):
+        post_data = {
+            "input_language": "bob",
+            "output_language": "elmo",
+            "input_text": "Hello world!",
+        }
+        response = client.post("/translate", json=post_data)
+        assert response.status_code == 422

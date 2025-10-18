@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from tech_test.services.languages import LanguageCode
+
 api_router = APIRouter()
 
 
@@ -10,8 +12,8 @@ def index():
 
 
 class TranslationInput(BaseModel):
-    input_language: str = "en"
-    output_language: str
+    input_language: LanguageCode = "en"
+    output_language: LanguageCode
     input_text: str
 
 
