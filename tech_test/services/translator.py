@@ -22,9 +22,11 @@ class Translator:
         input_lang: LanguageCode,
         output_lang: LanguageCode,
     ) -> None:
-        self.model_name = f"Helsinki-NLP/opus-mt-{input_lang}-{output_lang}"
+        self.model_name = f"Helsinki-NLP/opus-mt-{input_lang.value}-{output_lang.value}"
         self.model_class = model_class
         self.tokenizer_class = tokenizer_class
+        self.model = None
+        self.tokenizer = None
 
     def is_cached(self) -> bool:
         """
@@ -39,16 +41,28 @@ class Translator:
             return False
         return True
 
+    def pull_models(self):
+        """
+        Pull the models for this instance from Hugging Face. If this is already in progress an OSError is raised
+
+        :return:
+        """
+        try:
+            self.tokenizer = self.tokenizer_class.from_pretrained(self.model_name)
+            self.model = self.model_class.from_pretrained(self.model_name)
+        except OSError:
+            return None
+
     def is_valid(self) -> bool:
         """
         Check whether the languages asked for exist at all
         :return:
         """
         try:
-            model_info(self.model_name)
+            model_info(self.model_name, token=False)
             return True
         except HfHubHTTPError as e:
-            if e.response.status_code == 404:
+            if e.response.status_code == 404 or e.response.status_code == 401:
                 return False
             raise  # re-raise other errors
 
@@ -59,13 +73,12 @@ class Translator:
         :return:
         """
         if self.is_valid():
-            tokenizer = self.tokenizer_class.from_pretrained(self.model_name)
-            model = self.model_class.from_pretrained(self.model_name)
-            inputs = tokenizer(
+            self.pull_models()
+            inputs = self.tokenizer(
                 input_string, return_tensors="pt", padding=True, truncation=True
             )
-            translated = model.generate(**inputs)
-            output = tokenizer.decode(translated[0], skip_special_tokens=True)
+            translated = self.model.generate(**inputs)
+            output = self.tokenizer.decode(translated[0], skip_special_tokens=True)
             return output
 
 

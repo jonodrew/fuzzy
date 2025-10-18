@@ -1,3 +1,5 @@
+import os
+import shutil
 import tempfile
 
 import pytest
@@ -25,4 +27,12 @@ def hf_cache_dir(monkeypatch):
         # Override the HF cache env vars
         monkeypatch.setenv("HF_HOME", tmp_cache_dir)
         monkeypatch.setenv("TRANSFORMERS_CACHE", tmp_cache_dir)
+
+        cache_path = os.path.expanduser("~/.cache/huggingface/hub")
+        if os.path.exists(cache_path):
+            shutil.rmtree(cache_path, ignore_errors=True)
+
         yield tmp_cache_dir
+        cache_path = os.path.expanduser("~/.cache/huggingface/hub")
+        if os.path.exists(cache_path):
+            shutil.rmtree(cache_path)

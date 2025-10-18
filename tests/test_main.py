@@ -1,22 +1,6 @@
 from unittest.mock import patch
 
-import pytest
-from fastapi.testclient import TestClient
-
-from tech_test.app.main import app_factory
-
-
-@pytest.fixture
-def client() -> TestClient:
-    return TestClient(app_factory())
-
-
-def good_data() -> dict:
-    return {
-        "input_language": "en",
-        "output_language": "fr",
-        "input_text": "Hello world!",
-    }
+from tests.conftest import good_data
 
 
 def test_index(client):

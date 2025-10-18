@@ -3,12 +3,15 @@ from unittest.mock import patch
 from huggingface_hub.errors import HfHubHTTPError
 from requests import Request, Response
 
+from tech_test.services.languages import LanguageCode
 from tech_test.services.translator import Translator, TranslatorFactory
 
 
 class TestFactory:
     def test_factory_happy_path(self):
-        en_fr_translator = TranslatorFactory.translator_factory("en", "fr")
+        en_fr_translator = TranslatorFactory.translator_factory(
+            LanguageCode("en"), LanguageCode("fr")
+        )
         assert isinstance(en_fr_translator, Translator)
 
 
@@ -18,7 +21,9 @@ class TestTranslater:
             "tech_test.services.translator.AutoModel.from_pretrained"
         ) as mock_func:
             mock_func.side_effect = OSError("No such model")
-            translator = TranslatorFactory.translator_factory("en", "fr")
+            translator = TranslatorFactory.translator_factory(
+                LanguageCode("en"), LanguageCode("fr")
+            )
             assert not translator.is_cached()
 
     def test_is_valid(self):
@@ -35,9 +40,13 @@ class TestTranslater:
             exc = HfHubHTTPError("Mocked 404", response=fake_response)
 
             mock_func.side_effect = exc
-            translator = TranslatorFactory.translator_factory("en", "fr")
+            translator = TranslatorFactory.translator_factory(
+                LanguageCode("en"), LanguageCode("fr")
+            )
             assert not translator.is_valid()
 
     def test_translate(self):
-        translator = TranslatorFactory.translator_factory("fr", "en")
+        translator = TranslatorFactory.translator_factory(
+            LanguageCode("fr"), LanguageCode("en")
+        )
         assert translator.translate("Bonjour!") == "Hello!"
