@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from starlette.responses import JSONResponse
 
 from tech_test.services.languages import LanguageCode
+from tech_test.services.translator import TranslatorFactory
 
 api_router = APIRouter()
 
@@ -22,5 +24,15 @@ class TranslationOutput(TranslationInput):
 
 
 @api_router.post("/translate", response_model=TranslationOutput)
-def translate(data: TranslationInput) -> dict:
+def translate(data: TranslationInput):
+    translator = TranslatorFactory.translator_factory(
+        data.input_language, data.output_language
+    )
+    if not translator.is_cached():
+        return JSONResponse(
+            status_code=202,
+            content={
+                "message": "We're just grabbing that model for you. Hold tight, and ping us again in 300 seconds"
+            },
+        )
     return data.model_dump()
