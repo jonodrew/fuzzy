@@ -37,3 +37,7 @@ class TestTranslater:
             mock_func.side_effect = exc
             translator = TranslatorFactory.translator_factory("en", "fr")
             assert not translator.is_valid()
+
+    def test_translate(self):
+        translator = TranslatorFactory.translator_factory("fr", "en")
+        assert translator.translate("Bonjour!") == "Hello!"

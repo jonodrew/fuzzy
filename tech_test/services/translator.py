@@ -58,7 +58,15 @@ class Translator:
         :param input_string:
         :return:
         """
-        return "Coming soon!"
+        if self.is_valid():
+            tokenizer = self.tokenizer_class.from_pretrained(self.model_name)
+            model = self.model_class.from_pretrained(self.model_name)
+            inputs = tokenizer(
+                input_string, return_tensors="pt", padding=True, truncation=True
+            )
+            translated = model.generate(**inputs)
+            output = tokenizer.decode(translated[0], skip_special_tokens=True)
+            return output
 
 
 class TranslatorFactory:
