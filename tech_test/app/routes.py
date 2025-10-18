@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
@@ -34,5 +34,10 @@ def translate(data: TranslationInput):
             content={
                 "message": "We're just grabbing that model for you. Hold tight, and ping us again in 300 seconds"
             },
+        )
+    if not translator.is_valid():
+        raise HTTPException(
+            status_code=422,
+            detail={"message": "That language pair doesn't exist right now"},
         )
     return data.model_dump()

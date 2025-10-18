@@ -53,3 +53,17 @@ class TestTranslate:
             translator.return_value.is_cached.return_value = False
             response = client.post("/translate", json=post_data)
         assert response.status_code == 202
+
+    def test_invalid_languages(self, client):
+        post_data = good_data()
+        with patch(
+            "tech_test.app.routes.TranslatorFactory.translator_factory"
+        ) as translator:
+            translator.return_value.is_valid.return_value = False
+            translator.return_value.is_cached.return_value = True
+            response = client.post("/translate", json=post_data)
+        assert response.status_code == 422
+        assert (
+            response.json()["detail"]["message"]
+            == "That language pair doesn't exist right now"
+        )
