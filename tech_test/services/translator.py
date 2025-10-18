@@ -1,6 +1,8 @@
 from typing import Type
 
 from transformers import (
+    AutoModel,
+    AutoTokenizer,
     MarianMTModel,
     MarianTokenizer,
     PreTrainedModel,
@@ -21,6 +23,19 @@ class Translator:
         self.model_name = f"Helsinki-NLP/opus-mt-{input_lang}-{output_lang}"
         self.model_class = model_class
         self.tokenizer_class = tokenizer_class
+
+    def is_cached(self) -> bool:
+        """
+        Check whether the model is cached, in which case a response can be generated, or if it needs to be downloaded
+
+        :return:
+        """
+        try:
+            AutoModel.from_pretrained(self.model_name, local_files_only=True)
+            AutoTokenizer.from_pretrained(self.model_name, local_files_only=True)
+        except (OSError, AttributeError):
+            return False
+        return True
 
 
 class TranslatorFactory:
