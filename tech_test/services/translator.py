@@ -52,6 +52,14 @@ class Translator:
                 return False
             raise  # re-raise other errors
 
+    def translate(self, input_string: str) -> str:
+        """
+        Translate the input_string, using the model in this instance
+        :param input_string:
+        :return:
+        """
+        return "Coming soon!"
+
 
 class TranslatorFactory:
     model_class = MarianMTModel

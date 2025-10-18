@@ -40,4 +40,9 @@ def translate(data: TranslationInput):
             status_code=422,
             detail={"message": "That language pair doesn't exist right now"},
         )
-    return data.model_dump()
+    return TranslationOutput(
+        input_language=data.input_language,
+        output_language=data.output_language,
+        input_text=data.input_text,
+        output_text=translator.translate(data.input_text),
+    )

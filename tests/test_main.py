@@ -32,6 +32,7 @@ class TestTranslate:
             "tech_test.app.routes.TranslatorFactory.translator_factory"
         ) as translator:
             translator.return_value.is_cached.return_value = True
+            translator.return_value.translate.return_value = "Coming soon!"
             response = client.post("/translate", json=post_data)
         response_dict = response.json()
         assert response_dict.get("output_text") == "Coming soon!"
